@@ -4,6 +4,10 @@ html {
   background-color: rgb(128, 128, 128);
 }
 
+img {
+  width: 200px;
+}
+
 header {
   display: flex;
   justify-content: center;
