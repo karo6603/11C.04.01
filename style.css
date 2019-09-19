@@ -1,7 +1,7 @@
 /* GENERAL */
 
 html {
-  background-color: rgb(128, 128, 128);
+  background-color: rgb(177, 149, 113);
 }
 
 img {
@@ -14,19 +14,56 @@ header {
 }
 
 h1 {
-  font-size: 50px;
-  font-family: "Courier New", Courier, monospace;
+  font-size: 70px;
+  font-family: "Grand Hotel", cursive;
   margin-top: 50px;
+  text-align: center;
 }
 
 h2 {
-  font-size: 20px;
-  font-family: cursive;
-  font-weight: 500;
+  font-size: 30px;
+  font-family: "Slabo 27px", serif;
 }
 
 p {
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 20px;
+  font-family: "Amiri", serif;
+}
+
+#school_info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 50px 100px;
+  border-bottom: black solid 2px;
+  padding: 0 0 40px;
+}
+
+#student_amount {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  font-size: 20px;
+  font-family: "Slabo 27px", serif;
+}
+
+#total_houses {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#total_hufflepuff {
+  color: yellow;
+}
+#total_gryffindor {
+  color: red;
+}
+#total_ravenclaw {
+  color: blue;
+}
+#total_slytherin {
+  color: green;
 }
 
 /* STUDENTLIST */
@@ -41,37 +78,67 @@ p {
   border: 2px solid black;
   margin: 4px;
   padding: 10px;
-  background-color: ghostwhite;
+  background-size: cover;
   justify-content: space-between;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
+}
+
+.student img {
+  margin: 0 auto;
+}
+
+.student h2,
+.student p {
+  background-color: rgb(214, 193, 166);
+  text-align: center;
+  width: 70%;
+  margin: 10px auto;
 }
 
 /* SORTING AND FILTERING */
 
-.options {
+.house_content {
+  display: none;
+}
+
+#dropdown_houses {
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+}
+
+#chosen_house img {
+  width: 300px;
+}
+
+.house img {
+  width: 150px;
+}
+
+#chosen_house {
+  display: flex;
+  flex-direction: row;
+}
+
+i,
+.fa-angle-down:before {
+  font-size: 50px;
+  margin: 150px 25px;
+}
+
+#options {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
   margin: 10px 500px;
 }
 
-button {
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+select {
   font-size: 20px;
-  border: none;
-  background-color: inherit;
-  color: black;
-}
-
-.housedropdown {
-  display: none;
-  flex-direction: column;
-}
-
-.sortdropdown {
-  display: none;
-  flex-direction: column;
+  font-family: "Slabo 27px", serif;
+  cursor: pointer;
 }
 
 .show {
@@ -81,41 +148,33 @@ button {
 /* POPUP */
 
 #popup {
-  width: 70vw;
-  height: 85vh;
+  height: 100%;
+  width: 0;
   position: fixed;
-  background-color: white;
-  border: 2px solid black;
+  z-index: 1;
+  right: 0;
+  top: 0;
+  background-color: rgba(209, 178, 132, 0.9);
+  transition: 0.5s;
+}
+
+#close {
+  position: absolute;
+  top: 20px;
+  right: 45px;
+  font-size: 60px;
+  cursor: pointer;
   display: none;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
-#indhold {
-  box-sizing: border-box;
-  width: 60vw;
-  height: 70vh;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  position: fixed;
-}
-
-#indhold h2 {
-  font-size: 30px;
-}
-
-#luk {
-  box-sizing: border-box;
-  text-align: right;
-}
-
-#luk button {
-  font-size: 2em;
-  background-color: white;
+.popup_content .student {
   border: none;
-  cursor: grab;
-  padding: 0px;
-  margin-right: 15px;
+  margin: 50px 0 0;
+}
+
+.popup_content .student h2,
+.popup_content .student p {
+  background-color: inherit;
+  text-align: center;
+  width: 100%;
 }

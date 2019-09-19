@@ -6,26 +6,77 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Document</title>
     <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Amiri|Grand+Hotel|Slabo+27px&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <label id="house-selector">
-      <select name="house_picker" id="house_picker">
-        <option value="All">All</option>
-        <option value="Hufflepuff">Hufflepuff</option>
-        <option value="Gryffindor">Gryffindor</option>
-        <option value="Ravenclaw">Ravenclaw</option>
-        <option value="Slytherin">Slytherin</option>
-      </select>
-    </label>
+    <h1>Hogwarts Students 1991</h1>
 
-    <label for="#sort-by">Sort by</label>
-    <select id="sort-by">
-      <option value="none">None</option>
-      <option value="Firstname">Firstname</option>
-      <option value="Lastname">Lastname</option>
-      <option value="House">House</option>
-    </select>
+    <div id="school_info">
+      <div id="dropdown_houses">
+        <div id="chosen_house">
+          <img src="images/hogwarts_crest.png" /><i
+            class="fa fa-angle-down fa-lg"
+          ></i>
+        </div>
+        <div class="house_content">
+          <div class="house" value="All">
+            <img src="images/hogwarts_crest.png" />
+          </div>
+          <div class="house" value="Hufflepuff">
+            <img src="images/hufflepuff_crest.png" />
+          </div>
+          <div class="house" value="Gryffindor">
+            <img src="images/gryffindor_crest.png" />
+          </div>
+          <div class="house" value="Ravenclaw">
+            <img src="images/ravenclaw_crest.png" />
+          </div>
+          <div class="house" value="Slytherin">
+            <img src="images/slytherin_crest.png" />
+          </div>
+        </div>
+      </div>
+
+      <div id="student_amount">
+        <div id="total">Total number of students:</div>
+        <div id="total_expelled">Total number of expelled students:</div>
+        <div id="total_perhouse">Total students per house:</div>
+        <div id="total_houses">
+          <div id="total_hufflepuff">0</div>
+          <div id="total_gryffindor">0</div>
+          <div id="total_ravenclaw">0</div>
+          <div id="total_slytherin">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="options">
+      <select name="filter_expelled" id="filter_expelled">
+        <option value="All">Show all students</option>
+        <option value="Expelled">Show expelled students</option>
+        <option value="non_expelled">Show unexpelled students</option>
+      </select>
+
+      <select id="sort-by">
+        <option value="none">Sort by</option>
+        <option value="Firstname">Firstname</option>
+        <option value="Lastname">Lastname</option>
+        <option value="House">House</option>
+      </select>
+    </div>
     <div id="list"></div>
+
+    <div id="popup">
+      <div id="close">&times;</div>
+      <div class="popup_content"></div>
+    </div>
 
     <script src="script.js"></script>
   </body>

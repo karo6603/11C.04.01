@@ -1,16 +1,20 @@
-"use strict";
+//filtreringsfunktion virker ikke ved skift til alle
+//fjern det valgte hus?
+//total i huse
+//baggrunde
+//oprydning i funktioner - de skal helst bare gøre en ting
+//popup ud af showstudent
 
-document.addEventListener("DOMContentLoaded", start);
+"use strict";
 
 let allStudents = [];
 let cleanStudents = [];
 let sort;
+let house = "All";
 
-document.querySelectorAll("#sort-by").forEach(option => {
-  option.addEventListener("change", sortBy);
-});
+document.addEventListener("DOMContentLoaded", start);
 
-document.querySelector("#house_picker").addEventListener("change", showStudent);
+// document.querySelector("#house_picker").addEventListener("change", showStudent);
 
 //   get json
 function start() {
@@ -23,6 +27,12 @@ function start() {
     cleanData(allStudents);
   }
   getJson();
+
+  document.querySelector("#chosen_house").addEventListener("click", dropDown);
+
+  document.querySelectorAll("#sort-by").forEach(option => {
+    option.addEventListener("change", sortBy);
+  });
 }
 
 // clean data
@@ -82,7 +92,7 @@ function cleanData(allStudents) {
         student.lastName = lastName;
       }
     } else {
-      student.lastName = "Unknown";
+      student.lastName = "";
     }
 
     // HOUSES
@@ -150,6 +160,8 @@ function cleanData(allStudents) {
     cleanStudents.push(student);
   });
   showStudent(cleanStudents);
+  showAmount();
+  showHouseNumbers(cleanStudents);
 }
 
 const studentData = {
@@ -163,30 +175,81 @@ const studentData = {
 
 //   show student list
 function showStudent(cleanStudents) {
-  let selectedHouse = document.querySelector("#house_picker").value;
+  let selectedHouse = house;
   let dest = document.querySelector("#list");
 
-  console.log(cleanStudents);
   dest.innerHTML = "";
+
+  console.log(cleanStudents);
 
   if (selectedHouse === "All") {
     cleanStudents.forEach(student => {
-      dest.innerHTML += `
+      let template = `
         <div class="student">
         <img src=${student.pictureName}>
             <h2>${student.firstName} ${student.middleName} ${student.lastName}</h2>
             <p>${student.house}</p>
         </div>`;
+
+      dest.insertAdjacentHTML("beforeend", template);
+      dest.lastElementChild.addEventListener("click", openStudent);
+
+      function openStudent() {
+        document.querySelector(".popup_content").innerHTML = `
+                              <div class="student">
+                              <img src=${student.pictureName}>
+                  <h2>${student.firstName} ${student.middleName} ${student.lastName}</h2>
+                  <p>${student.house}</p>
+                                  </div>
+                              `;
+
+        document.querySelector("#popup").style.width = "50%";
+        document.querySelector("#close").style.display = "block";
+
+        document.querySelector("#close").addEventListener("click", () => {
+          document.querySelector("#popup").style.width = "0%";
+          document.querySelector("#close").style.display = "none";
+        });
+      }
+
+      document.querySelectorAll(".student").forEach(bcg => {
+        bcg.style.backgroundImage = `url(images/${student.house}_wallpaper.jpg)`;
+      });
     });
   } else {
     let filteredStudents = studentsInHouse(selectedHouse);
     filteredStudents.forEach(filterStudent => {
-      dest.innerHTML += `
+      let template = `
         <div class="student">
         <img src=${filterStudent.pictureName}>
             <h2>${filterStudent.firstName} ${filterStudent.middleName} ${filterStudent.lastName}</h2>
             <p>${filterStudent.house}</p>
         </div>`;
+
+      dest.insertAdjacentHTML("beforeend", template);
+      dest.lastElementChild.addEventListener("click", openStudent);
+
+      function openStudent() {
+        document.querySelector(".popup_content").innerHTML = `
+                              <div class="student">
+                              <img src=${filterStudent.pictureName}>
+                  <h2>${filterStudent.firstName} ${filterStudent.middleName} ${filterStudent.lastName}</h2>
+                  <p>${filterStudent.house}</p>
+                                  </div>
+                              `;
+
+        document.querySelector("#popup").style.width = "50%";
+        document.querySelector("#close").style.display = "block";
+
+        document.querySelector("#close").addEventListener("click", () => {
+          document.querySelector("#popup").style.width = "0%";
+          document.querySelector("#close").style.display = "none";
+        });
+      }
+
+      document.querySelectorAll(".student").forEach(bcg => {
+        bcg.style.backgroundImage = `url(images/${filterStudent.house}_wallpaper.jpg)`;
+      });
     });
   }
 }
@@ -218,6 +281,30 @@ function sortBy() {
 // FILTERING VIRKER IKKE ENDNU
 //   show student list
 
+function dropDown() {
+  document.querySelector(".house_content").classList.toggle("show");
+
+  document.querySelectorAll(".house").forEach(house => {
+    house.addEventListener("click", filterByHouse);
+  });
+}
+
+function filterByHouse() {
+  house = this.getAttribute("value");
+
+  console.log(house);
+
+  document.querySelector(".house_content").classList.toggle("show");
+
+  // FJERN VALGTE HUS
+
+  document.querySelector(
+    "#chosen_house"
+  ).innerHTML = `<img src="images/${house}_crest.png"><i class="fa fa-angle-down">`;
+
+  showStudent(house);
+}
+
 function studentsInHouse(selectedHouse) {
   const students = cleanStudents.filter(filterFunction);
   function filterFunction(student) {
@@ -228,4 +315,31 @@ function studentsInHouse(selectedHouse) {
     }
   }
   return students;
+}
+
+// SHOW DETAILS
+
+function showAmount() {
+  document.querySelector(
+    "#total"
+  ).innerHTML = `Total number of students: ${cleanStudents.length}`;
+}
+
+function showHouseNumbers(cleanStudents) {
+  let gryffindor = cleanStudents.filter(obj =>
+    obj.house.includes("Gryffindor")
+  );
+  let hufflepuff = cleanStudents.filter(obj =>
+    obj.house.includes("Hufflepuff")
+  );
+  let slytherin = cleanStudents.filter(obj => obj.house.includes("Slytherin"));
+  let ravenclaw = cleanStudents.filter(obj => obj.house.includes("Ravenclaw"));
+  document.querySelector(
+    "#total_gryffindor"
+  ).innerHTML = `${gryffindor.length}`;
+  document.querySelector(
+    "#total_hufflepuff"
+  ).innerHTML = `${hufflepuff.length}`;
+  document.querySelector("#total_slytherin").innerHTML = `${slytherin.length}`;
+  document.querySelector("#total_ravenclaw").innerHTML = `${ravenclaw.length}`;
 }
