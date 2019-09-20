@@ -1,37 +1,30 @@
-//fjern det valgte hus?
-//baggrunde
-//oprydning i funktioner - de skal helst bare gøre en ting
-//popup ud af showstudent
-
 "use strict";
 
-let allStudents = [];
 let cleanStudents = [];
-let sort;
-let house = "All";
+let currentStudents = [];
+let sort = "none";
 
 document.addEventListener("DOMContentLoaded", start);
 
-//   get json
+//   GET JSON
 function start() {
   async function getJson() {
     let jsonData = await fetch(
       "http://petlatkea.dk/2019/hogwartsdata/students.json"
     );
 
-    allStudents = await jsonData.json();
-    cleanData(allStudents);
+    cleanData(await jsonData.json());
   }
   getJson();
 
   document.querySelector("#chosen_house").addEventListener("click", dropDown);
 
   document.querySelectorAll("#sort-by").forEach(option => {
-    option.addEventListener("change", sortBy);
+    option.addEventListener("change", changeSort);
   });
 }
 
-// clean data
+// CLEAN DATA
 
 function cleanData(allStudents) {
   allStudents.forEach(jsonObject => {
@@ -39,26 +32,16 @@ function cleanData(allStudents) {
 
     // NAMES
 
-    const nametrim = jsonObject.fullname.trim();
+    const names = jsonObject.fullname.trim().split(" ");
 
-    let names = nametrim.split(" ");
+    student.firstName =
+      names[0].substring(0, 1).toUpperCase() + names[0].slice(1).toLowerCase();
 
-    let firstName = names[0];
-
-    firstName =
-      firstName.substring(0, 1).toUpperCase() +
-      firstName.slice(1).toLowerCase();
-
-    student.firstName = firstName;
-
-    if (names.length == 2) {
-      let lastName = names[1];
-      lastName =
-        lastName.substring(0, 1).toUpperCase() +
-        lastName.slice(1).toLowerCase();
-
-      student.lastName = lastName;
-    } else if (names.length == 3) {
+    if (names.length == 2)
+      student.lastName =
+        names[1].substring(0, 1).toUpperCase() +
+        names[1].slice(1).toLowerCase();
+    else if (names.length == 3) {
       if (names[1].includes("ernie")) {
         // VIRKER IKKE HJÆLP
         let nickName = names[1];
@@ -74,88 +57,68 @@ function cleanData(allStudents) {
         student.nickName = nickName;
         student.lastName = lastName;
       } else {
-        let middleName = names[1];
-        middleName =
-          middleName.substring(0, 1).toUpperCase() +
-          middleName.slice(1).toLowerCase();
-
-        let lastName = names[2];
-        lastName =
-          lastName.substring(0, 1).toUpperCase() +
-          lastName.slice(1).toLowerCase();
-
-        student.middleName = middleName;
-        student.lastName = lastName;
+        student.middleName =
+          names[1].substring(0, 1).toUpperCase() +
+          names[1].slice(1).toLowerCase();
+        student.lastName =
+          names[2].substring(0, 1).toUpperCase() +
+          names[2].slice(1).toLowerCase();
       }
-    } else {
-      student.lastName = "";
-    }
+    } else student.lastName = "";
 
     // HOUSES
 
-    let house = jsonObject.house.trim();
-
-    house = house.substring(0, 1).toUpperCase() + house.slice(1).toLowerCase();
-
-    student.house = house;
+    student.house =
+      jsonObject.house
+        .trim()
+        .substring(0, 1)
+        .toUpperCase() +
+      jsonObject.house
+        .trim()
+        .slice(1)
+        .toLowerCase();
 
     // PHOTOS
 
-    if (firstName === "Justin") {
+    if (student.firstName === "Justin") {
       let lastName = names[1].substring(6, names[1].length);
 
-      let photoName = `images/${lastName}_${names[0]
+      student.pictureName = `images/${lastName}_${names[0]
         .substring(0, 1)
         .toLowerCase()}.png`;
-
-      student.pictureName = photoName;
     } else if (names.length === 1) {
-      let photoName = `images/unknown.png`;
-
-      student.pictureName = photoName;
-    } else if (firstName === "Padma") {
+      student.pictureName = `images/unknown.png`;
+    } else if (student.firstName === "Padma") {
       let lastName = names[1].toLowerCase();
 
-      lastName = lastName.toLowerCase();
-
-      let photoName = `images/${lastName}_${names[0]
+      student.pictureName = `images/${lastName}_${names[0]
         .substring(0, 4)
         .toLowerCase()}e.png`;
-
-      student.pictureName = photoName;
-    } else if (firstName === "Parvati") {
+    } else if (student.firstName === "Parvati") {
       let lastName = names[1].toLowerCase();
 
-      lastName = lastName.toLowerCase();
-
-      let photoName = `images/${lastName}_${names[0].toLowerCase()}.png`;
-
-      student.pictureName = photoName;
+      student.pictureName = `images/${lastName}_${names[0].toLowerCase()}.png`;
     } else if (names.length == 2) {
-      let lastName = names[1];
+      let lastName = names[1].toLowerCase();
 
-      lastName = lastName.toLowerCase();
-
-      let photoName = `images/${lastName}_${names[0]
+      student.pictureName = `images/${lastName}_${names[0]
         .substring(0, 1)
         .toLowerCase()}.png`;
-
-      student.pictureName = photoName;
     } else if (names.length == 3) {
-      let lastName = names[2];
+      let lastName = names[2].toLowerCase();
 
-      lastName = lastName.toLowerCase();
-
-      let photoName = `images/${lastName}_${names[0]
+      student.pictureName = `images/${lastName}_${names[0]
         .substring(0, 1)
         .toLowerCase()}.png`;
-
-      student.pictureName = photoName;
     }
 
     cleanStudents.push(student);
   });
-  showStudent(cleanStudents);
+
+  currentStudents = cleanStudents.slice(0);
+
+  showStudents();
+
   showAmount();
 
   showHouseAmount(cleanStudents);
@@ -174,89 +137,79 @@ const studentData = {
   inqSquad: "no"
 };
 
-//   show student list
-function showStudent(students) {
+//   SHOW STUDENT LIST
+function showStudents() {
+  sortBy();
   let dest = document.querySelector("#list");
-
-  console.log(students);
 
   dest.innerHTML = "";
 
-  students.forEach(student => {
+  currentStudents.forEach(student => {
     let template = `
-        <div class="student">
+        <div class="student" style="background-image: url(images/${student.house}_wallpaper.jpg)">
         <img src=${student.pictureName}>
             <h2>${student.firstName} ${student.middleName} ${student.lastName}</h2>
             <p>${student.house}</p>
         </div>`;
 
     dest.insertAdjacentHTML("beforeend", template);
+    dest.lastElementChild.addEventListener("click", () => openStudent(student));
+  });
+}
 
-    dest.lastElementChild.addEventListener("click", openStudent);
+// POPUP
 
-    function openStudent() {
-      document.querySelector(".popup_content").innerHTML = `
-                              <div class="student">
-                              <div id="crest"><img src="images/${student.house}_crest.png"></div>
-                              <img src=${student.pictureName}>
-                              <div id="top">
-                  <h2>${student.firstName} ${student.middleName} ${student.lastName}</h2>
-                  <p>${student.house}</p>
-                  <p>${student.prefect}</p>
-                  <p>Blood-status: ${student.bloodStatus}</p>
-                  <p>Inquisitorial squad: ${student.inqSquad}</p></div>
-                  <button class="prefect">Make prefect</button>
-                  <button class="inq">Add to Inquisitorial squad</button>
-                  <button class="expel">Expel student</button></div>
-                  
+function openStudent(student) {
+  document.querySelector(".popup_content").innerHTML = `
+                            <div class="student">
+                            <div id="crest"><img src="images/${student.house}_crest.png"></div>
+                            <img src=${student.pictureName}>
+                            <div id="top">
+                <h2>${student.firstName} ${student.middleName} ${student.lastName}</h2>
+                <p>${student.house}</p>
+                <p>${student.prefect}</p>
+                <p>Blood-status: ${student.bloodStatus}</p>
+                <p>Inquisitorial squad: ${student.inqSquad}</p></div>
+                <button class="prefect">Make prefect</button>
+                <button class="inq">Add to Inquisitorial squad</button>
+                <button class="expel">Expel student</button></div>      
+                                </div>`;
+  document.querySelector(
+    "#popup"
+  ).style.backgroundImage = `url(images/${student.house}_wallpaper.jpg)`;
 
-                                  </div>
-                              `;
-      document.querySelector(
-        "#popup"
-      ).style.backgroundImage = `url(images/${student.house}_wallpaper.jpg)`;
+  document.querySelector("#popup").style.width = "50%";
+  document.querySelector("#close").style.display = "block";
 
-      document.querySelector("#popup").style.width = "50%";
-      document.querySelector("#close").style.display = "block";
-
-      document.querySelector("#close").addEventListener("click", () => {
-        document.querySelector("#popup").style.width = "0%";
-        document.querySelector("#close").style.display = "none";
-      });
-    }
-
-    document.querySelectorAll(".student").forEach(bcg => {
-      bcg.style.backgroundImage = `url(images/${student.house}_wallpaper.jpg)`;
-    });
+  document.querySelector("#close").addEventListener("click", () => {
+    document.querySelector("#popup").style.width = "0%";
+    document.querySelector("#close").style.display = "none";
   });
 }
 
 // SORTING (HAT)
 
-function sortBy() {
+function changeSort() {
   sort = this.value;
-
-  if (sort == "Firstname") {
-    cleanStudents.sort(function(a, b) {
-      return a.firstName.localeCompare(b.firstName);
-    });
-  } else if (sort == "Lastname") {
-    cleanStudents.sort(function(a, b) {
-      return a.lastName.localeCompare(b.lastName);
-    });
-  } else if (sort == "House") {
-    cleanStudents.sort(function(a, b) {
-      return a.house.localeCompare(b.house);
-    });
-  } else if (sort == "none") {
-    start();
-  }
-
-  showStudent(cleanStudents);
+  showStudents();
 }
 
-// FILTERING VIRKER IKKE ENDNU
-//   show student list
+function sortBy() {
+  if (sort == "Firstname")
+    currentStudents.sort((a, b) => {
+      return a.firstName.localeCompare(b.firstName);
+    });
+  else if (sort == "Lastname")
+    currentStudents.sort((a, b) => {
+      return a.lastName.localeCompare(b.lastName);
+    });
+  else if (sort == "House")
+    currentStudents.sort((a, b) => {
+      return a.house.localeCompare(b.house);
+    });
+}
+
+//   FILTER
 
 function dropDown() {
   document.querySelector(".house_content").classList.toggle("show");
@@ -267,11 +220,9 @@ function dropDown() {
 }
 
 function filterByHouse() {
-  house = this.getAttribute("value");
+  let house = this.getAttribute("value");
 
   document.querySelector(".house_content").classList.toggle("show");
-
-  // FJERN VALGTE HUS
 
   document.querySelector(
     "#chosen_house"
@@ -281,18 +232,13 @@ function filterByHouse() {
 }
 
 function studentsInHouse(house) {
-  const students = cleanStudents.filter(filterFunction);
+  currentStudents = cleanStudents.filter(s => {
+    if (s.house === house) return true;
+    else if (house === "All") return true;
+    else return false;
+  });
 
-  function filterFunction(student) {
-    if (student.house === house) {
-      return true;
-    } else if (house === "All") {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  showStudent(students);
+  showStudents();
 }
 
 // SHOW DETAILS
