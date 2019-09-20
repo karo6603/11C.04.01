@@ -161,7 +161,8 @@ function cleanData(allStudents) {
   });
   showStudent(cleanStudents);
   showAmount();
-  showHouseNumbers(cleanStudents);
+
+  showHouseAmount(cleanStudents);
 }
 
 const studentData = {
@@ -197,11 +198,15 @@ function showStudent(cleanStudents) {
       function openStudent() {
         document.querySelector(".popup_content").innerHTML = `
                               <div class="student">
+                              <div id="crest"><img src="images/${student.house}_crest.png"></div>
                               <img src=${student.pictureName}>
                   <h2>${student.firstName} ${student.middleName} ${student.lastName}</h2>
                   <p>${student.house}</p>
                                   </div>
                               `;
+        document.querySelector(
+          "#popup"
+        ).style.backgroundImage = `url(images/${student.house}_wallpaper.jpg)`;
 
         document.querySelector("#popup").style.width = "50%";
         document.querySelector("#close").style.display = "block";
@@ -231,13 +236,16 @@ function showStudent(cleanStudents) {
 
       function openStudent() {
         document.querySelector(".popup_content").innerHTML = `
-                              <div class="student">
-                              <img src=${filterStudent.pictureName}>
-                  <h2>${filterStudent.firstName} ${filterStudent.middleName} ${filterStudent.lastName}</h2>
-                  <p>${filterStudent.house}</p>
-                                  </div>
-                              `;
-
+        <div class="student">
+        <div id="crest"><img src="images/${filterStudent.house}_crest.png"></div>
+        <img src=${filterStudent.pictureName}>
+<h2>${filterStudent.firstName} ${filterStudent.middleName} ${filterStudent.lastName}</h2>
+<p>${filterStudent.house}</p>
+            </div>
+        `;
+        document.querySelector(
+          "#popup"
+        ).style.backgroundImage = `url(images/${filterStudent.house}_wallpaper.jpg)`;
         document.querySelector("#popup").style.width = "50%";
         document.querySelector("#close").style.display = "block";
 
@@ -325,7 +333,7 @@ function showAmount() {
   ).innerHTML = `Total number of students: ${cleanStudents.length}`;
 }
 
-function showHouseNumbers(cleanStudents) {
+function showHouseAmount(cleanStudents) {
   let gryffindor = cleanStudents.filter(obj =>
     obj.house.includes("Gryffindor")
   );

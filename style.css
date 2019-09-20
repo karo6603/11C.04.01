@@ -1,7 +1,7 @@
 /* GENERAL */
 
 html {
-  background-color: rgb(177, 149, 113);
+  background-image: url(images/background.jpg);
 }
 
 img {
@@ -169,12 +169,21 @@ select {
 
 .popup_content .student {
   border: none;
-  margin: 50px 0 0;
+  margin: 0px 0 0;
 }
 
 .popup_content .student h2,
 .popup_content .student p {
-  background-color: inherit;
   text-align: center;
-  width: 100%;
+  width: 70%;
+}
+
+#crest img {
+  width: 150px;
+  margin: 20px;
+}
+
+.popup_content img {
+  width: 250px;
+  margin: 50px auto;
 }
