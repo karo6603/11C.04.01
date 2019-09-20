@@ -34,7 +34,7 @@ p {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin: 50px 100px;
+  margin: 50px 150px;
   border-bottom: black solid 2px;
   padding: 0 0 40px;
 }
@@ -91,7 +91,7 @@ p {
 
 .student h2,
 .student p {
-  background-color: rgb(214, 193, 166);
+  background-color: #f9ecbf;
   text-align: center;
   width: 70%;
   margin: 10px auto;
@@ -114,7 +114,7 @@ p {
 }
 
 .house img {
-  width: 150px;
+  width: 100px;
 }
 
 #chosen_house {
@@ -122,23 +122,41 @@ p {
   flex-direction: row;
 }
 
-i,
+.house_content {
+  position: absolute;
+  z-index: 1;
+  flex-direction: column;
+  left: 40vw;
+}
+#first {
+  margin: 0 auto;
+}
+#second,
+#third {
+  display: flex;
+  flex-direction: row;
+}
+
 .fa-angle-down:before {
   font-size: 50px;
-  margin: 150px 25px;
+}
+
+i {
+  margin: 150px 20px;
 }
 
 #options {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  margin: 10px 500px;
+  margin: 10px 300px;
 }
 
 select {
   font-size: 20px;
   font-family: "Slabo 27px", serif;
   cursor: pointer;
+  background-color: #f9ecbf;
 }
 
 .show {
@@ -154,7 +172,7 @@ select {
   z-index: 1;
   right: 0;
   top: 0;
-  background-color: rgba(209, 178, 132, 0.9);
+  background-size: cover;
   transition: 0.5s;
 }
 
@@ -162,20 +180,21 @@ select {
   position: absolute;
   top: 20px;
   right: 45px;
-  font-size: 60px;
+  font-size: 80px;
   cursor: pointer;
   display: none;
+  color: #f9ecbf;
 }
 
 .popup_content .student {
   border: none;
-  margin: 0px 0 0;
 }
 
 .popup_content .student h2,
 .popup_content .student p {
   text-align: center;
-  width: 70%;
+  width: 60%;
+  margin: 8px auto;
 }
 
 #crest img {
@@ -185,5 +204,108 @@ select {
 
 .popup_content img {
   width: 250px;
-  margin: 50px auto;
+  margin: -180px auto 10px;
+  z-index: 11;
+}
+
+button {
+  width: 50%;
+  margin: 8px auto 4px;
+  height: 40px;
+  background-color: #f9ecbf;
+  font-family: "Amiri", serif;
+  font-size: 20px;
+  border: black solid 2px;
+  box-shadow: 10px 10px 17px 0px rgba(0, 0, 0, 0.75);
+}
+
+#top {
+  background-color: #f9ecbf;
+  width: 50%;
+  margin: 0 auto;
+}
+
+#popup p,
+#popup h2 {
+  text-align: left;
+}
+
+#popup h2 {
+  width: 100%;
+  text-align: center;
+}
+
+/* MEDIAQUERIES */
+
+@media only screen and (max-width: 1300px) {
+  #school_info {
+    margin: 50px 10px;
+  }
+}
+@media only screen and (max-width: 950px) {
+  #school_info {
+    flex-direction: column;
+    margin: 50px 50px 0;
+    padding: 0px;
+  }
+
+  #total_houses {
+    justify-content: space-around;
+  }
+
+  #student_amount {
+    height: 150px;
+    justify-content: space-between;
+    margin: 50px 0;
+  }
+
+  .house_content {
+    left: 60vw;
+  }
+
+  #options {
+    justify-content: space-between;
+    margin: 10px 200px;
+  }
+  #list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media only screen and (max-width: 700px) {
+  #chosen_house img {
+    width: 200px;
+    height: 250px;
+    margin: 50px 10px;
+  }
+
+  #options {
+    justify-content: space-between;
+    margin: 10px 50px;
+  }
+}
+
+@media only screen and (max-width: 560px) {
+  #chosen_house img {
+    width: 200px;
+    height: 210px;
+    margin: 0px 10px 100px;
+  }
+
+  i {
+    margin: 90px 20px;
+  }
+  .house_content {
+    left: 20px;
+    top: 520px;
+    flex-direction: row;
+  }
+
+  .house_content img {
+    width: 90px;
+  }
+
+  #list {
+    grid-template-columns: 1fr;
+  }
 }

@@ -1,6 +1,4 @@
-//filtreringsfunktion virker ikke ved skift til alle
 //fjern det valgte hus?
-//total i huse
 //baggrunde
 //oprydning i funktioner - de skal helst bare gøre en ting
 //popup ud af showstudent
@@ -13,8 +11,6 @@ let sort;
 let house = "All";
 
 document.addEventListener("DOMContentLoaded", start);
-
-// document.querySelector("#house_picker").addEventListener("change", showStudent);
 
 //   get json
 function start() {
@@ -113,8 +109,8 @@ function cleanData(allStudents) {
         .toLowerCase()}.png`;
 
       student.pictureName = photoName;
-    } else if (firstName === "Leanne") {
-      let photoName = `images/${names[0].toLowerCase()}.png`;
+    } else if (names.length === 1) {
+      let photoName = `images/unknown.png`;
 
       student.pictureName = photoName;
     } else if (firstName === "Padma") {
@@ -171,95 +167,68 @@ const studentData = {
   lastName: "",
   nickName: "",
   house: "",
-  pictureName: ""
+  pictureName: "",
+  expelled: "Not expelled",
+  prefect: "Not a prefect",
+  bloodStatus: "idk",
+  inqSquad: "no"
 };
 
 //   show student list
-function showStudent(cleanStudents) {
-  let selectedHouse = house;
+function showStudent(students) {
   let dest = document.querySelector("#list");
+
+  console.log(students);
 
   dest.innerHTML = "";
 
-  console.log(cleanStudents);
-
-  if (selectedHouse === "All") {
-    cleanStudents.forEach(student => {
-      let template = `
+  students.forEach(student => {
+    let template = `
         <div class="student">
         <img src=${student.pictureName}>
             <h2>${student.firstName} ${student.middleName} ${student.lastName}</h2>
             <p>${student.house}</p>
         </div>`;
 
-      dest.insertAdjacentHTML("beforeend", template);
-      dest.lastElementChild.addEventListener("click", openStudent);
+    dest.insertAdjacentHTML("beforeend", template);
 
-      function openStudent() {
-        document.querySelector(".popup_content").innerHTML = `
+    dest.lastElementChild.addEventListener("click", openStudent);
+
+    function openStudent() {
+      document.querySelector(".popup_content").innerHTML = `
                               <div class="student">
                               <div id="crest"><img src="images/${student.house}_crest.png"></div>
                               <img src=${student.pictureName}>
+                              <div id="top">
                   <h2>${student.firstName} ${student.middleName} ${student.lastName}</h2>
                   <p>${student.house}</p>
+                  <p>${student.prefect}</p>
+                  <p>Blood-status: ${student.bloodStatus}</p>
+                  <p>Inquisitorial squad: ${student.inqSquad}</p></div>
+                  <button class="prefect">Make prefect</button>
+                  <button class="inq">Add to Inquisitorial squad</button>
+                  <button class="expel">Expel student</button></div>
+                  
+
                                   </div>
                               `;
-        document.querySelector(
-          "#popup"
-        ).style.backgroundImage = `url(images/${student.house}_wallpaper.jpg)`;
+      document.querySelector(
+        "#popup"
+      ).style.backgroundImage = `url(images/${student.house}_wallpaper.jpg)`;
 
-        document.querySelector("#popup").style.width = "50%";
-        document.querySelector("#close").style.display = "block";
+      document.querySelector("#popup").style.width = "50%";
+      document.querySelector("#close").style.display = "block";
 
-        document.querySelector("#close").addEventListener("click", () => {
-          document.querySelector("#popup").style.width = "0%";
-          document.querySelector("#close").style.display = "none";
-        });
-      }
-
-      document.querySelectorAll(".student").forEach(bcg => {
-        bcg.style.backgroundImage = `url(images/${student.house}_wallpaper.jpg)`;
+      document.querySelector("#close").addEventListener("click", () => {
+        document.querySelector("#popup").style.width = "0%";
+        document.querySelector("#close").style.display = "none";
       });
+    }
+
+    document.querySelectorAll(".student").forEach(bcg => {
+      bcg.style.backgroundImage = `url(images/${student.house}_wallpaper.jpg)`;
     });
-  } else {
-    let filteredStudents = studentsInHouse(selectedHouse);
-    filteredStudents.forEach(filterStudent => {
-      let template = `
-        <div class="student">
-        <img src=${filterStudent.pictureName}>
-            <h2>${filterStudent.firstName} ${filterStudent.middleName} ${filterStudent.lastName}</h2>
-            <p>${filterStudent.house}</p>
-        </div>`;
-
-      dest.insertAdjacentHTML("beforeend", template);
-      dest.lastElementChild.addEventListener("click", openStudent);
-
-      function openStudent() {
-        document.querySelector(".popup_content").innerHTML = `
-        <div class="student">
-        <div id="crest"><img src="images/${filterStudent.house}_crest.png"></div>
-        <img src=${filterStudent.pictureName}>
-<h2>${filterStudent.firstName} ${filterStudent.middleName} ${filterStudent.lastName}</h2>
-<p>${filterStudent.house}</p>
-            </div>
-        `;
-        document.querySelector(
-          "#popup"
-        ).style.backgroundImage = `url(images/${filterStudent.house}_wallpaper.jpg)`;
-        document.querySelector("#popup").style.width = "50%";
-        document.querySelector("#close").style.display = "block";
-
-        document.querySelector("#close").addEventListener("click", () => {
-          document.querySelector("#popup").style.width = "0%";
-          document.querySelector("#close").style.display = "none";
-        });
-      }
-
-      document.querySelectorAll(".student").forEach(bcg => {
-        bcg.style.backgroundImage = `url(images/${filterStudent.house}_wallpaper.jpg)`;
-      });
-    });
-  }
+  });
 }
 
 // SORTING (HAT)
@@ -300,8 +269,6 @@ function dropDown() {
 function filterByHouse() {
   house = this.getAttribute("value");
 
-  console.log(house);
-
   document.querySelector(".house_content").classList.toggle("show");
 
   // FJERN VALGTE HUS
@@ -310,19 +277,22 @@ function filterByHouse() {
     "#chosen_house"
   ).innerHTML = `<img src="images/${house}_crest.png"><i class="fa fa-angle-down">`;
 
-  showStudent(house);
+  studentsInHouse(house);
 }
 
-function studentsInHouse(selectedHouse) {
+function studentsInHouse(house) {
   const students = cleanStudents.filter(filterFunction);
+
   function filterFunction(student) {
-    if (student.house === selectedHouse) {
+    if (student.house === house) {
+      return true;
+    } else if (house === "All") {
       return true;
     } else {
       return false;
     }
   }
-  return students;
+  showStudent(students);
 }
 
 // SHOW DETAILS
