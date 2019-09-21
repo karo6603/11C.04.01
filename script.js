@@ -42,6 +42,8 @@ function start() {
 
 function cleanData(allStudents) {
   allStudents.forEach(jsonObject => {
+    console.log(jsonObject);
+
     const student = Object.create(studentData);
 
     // NAMES
@@ -56,20 +58,14 @@ function cleanData(allStudents) {
         names[1].substring(0, 1).toUpperCase() +
         names[1].slice(1).toLowerCase();
     else if (names.length == 3) {
-      if (names[1].includes("ernie")) {
-        // VIRKER IKKE HJÆLP
-        let nickName = names[1];
-        nickName =
-          nickName.substring(0, 1).toUpperCase() +
-          nickName.slice(1).toLowerCase();
+      if (names[1].startsWith('"')) {
+        student.nickName =
+          names[1].substring(0, 2).toUpperCase() +
+          names[1].slice(2).toLowerCase();
 
-        let lastName = names[2];
-        lastName =
-          lastName.substring(0, 1).toUpperCase() +
-          lastName.slice(1).toLowerCase();
-
-        student.nickName = nickName;
-        student.lastName = lastName;
+        student.lastName =
+          names[2].substring(0, 1).toUpperCase() +
+          names[2].slice(1).toLowerCase();
       } else {
         student.middleName =
           names[1].substring(0, 1).toUpperCase() +
@@ -139,6 +135,8 @@ function cleanData(allStudents) {
     cleanStudents.push(student);
   });
 
+  insertMe();
+
   currentStudents = cleanStudents.slice(0);
 
   showStudents(currentStudents);
@@ -166,6 +164,7 @@ function showStudents(students) {
   dest.innerHTML = "";
 
   students.forEach(student => {
+    newBlood(student);
     let template = `
         <div class="student" style="background-image: url(images/${student.house}_wallpaper.jpg)">
         <img src=${student.pictureName}>
@@ -196,7 +195,7 @@ function openPopup(student) {
                             <div id="top">
                 <h2>${student.firstName} ${student.middleName} ${
     student.lastName
-  }</h2>
+  } ${student.nickName}</h2>
                 <p>${student.house}</p>
                 <p>Prefect: ${student.prefect ? "YES" : "NO"}</p>
                 <p>Blood-status: ${student.bloodStatus}</p>
@@ -335,9 +334,13 @@ function showHouseAmount(cleanStudents) {
 // EXPELLING
 
 function expelStudent(student) {
-  expelledStudents.push(student);
+  if (student.lastName === "Krogsbøll") {
+    alert("NOT ALLOWED");
+  } else {
+    expelledStudents.push(student);
 
-  filterExpelledStudents(student);
+    filterExpelledStudents(student);
+  }
 }
 
 function filterExpelledStudents(expelledStudent) {
@@ -396,9 +399,10 @@ function removePrefect(student) {
 function addToInq(newMember) {
   if (isEligibleSquad(newMember)) {
     newMember.inqSquad = true;
-  }
 
-  openPopup(newMember);
+    openPopup(newMember);
+    timer(newMember);
+  }
 }
 
 function isEligibleSquad(newMember) {
@@ -411,4 +415,40 @@ function removeFromInq(newMember) {
   newMember.inqSquad = false;
 
   openPopup(newMember);
+}
+
+//HACKING
+
+function insertMe() {
+  let me = {
+    firstName: "Karoline",
+    middleName: "",
+    lastName: "Krogsbøll",
+    nickName: '"Karo"',
+    house: "Hufflepuff",
+    pictureName: "images/unknown.png",
+    prefect: false,
+    bloodStatus: "Muggleborn",
+    inqSquad: false
+  };
+
+  cleanStudents.push(me);
+}
+
+function newBlood(student) {
+  if (student.bloodStatus === "Pureblood") {
+    student.bloodStatus = randomizeBlood();
+  } else student.bloodStatus = "Pureblood";
+}
+
+function randomizeBlood() {
+  let random = Math.floor(Math.random() * 3 + 1);
+
+  if (random === 1) return "Pureblood";
+  else if (random === 2) return "Halfblood";
+  else return "Muggleborn";
+}
+
+function timer(student) {
+  setTimeout(() => removeFromInq(student), 3000);
 }
