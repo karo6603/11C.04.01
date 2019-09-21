@@ -167,13 +167,14 @@ select {
 
 #popup {
   height: 100%;
-  width: 0;
+  width: 50%;
   position: fixed;
   z-index: 1;
   right: 0;
   top: 0;
   background-size: cover;
   transition: 0.5s;
+  display: none;
 }
 
 #close {
@@ -241,6 +242,17 @@ button {
   #school_info {
     margin: 50px 10px;
   }
+  #crest img {
+    width: 100px;
+  }
+  .popup_content img {
+    margin: -100px auto 10px;
+  }
+
+  #top,
+  button {
+    width: 70%;
+  }
 }
 @media only screen and (max-width: 950px) {
   #school_info {
@@ -269,6 +281,10 @@ button {
   }
   #list {
     grid-template-columns: 1fr 1fr;
+  }
+
+  #popup {
+    width: 70%;
   }
 }
 
@@ -307,5 +323,9 @@ button {
 
   #list {
     grid-template-columns: 1fr;
+  }
+
+  #popup {
+    width: 80%;
   }
 }

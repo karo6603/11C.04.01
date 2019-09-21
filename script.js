@@ -42,8 +42,6 @@ function start() {
 
 function cleanData(allStudents) {
   allStudents.forEach(jsonObject => {
-    console.log(jsonObject);
-
     const student = Object.create(studentData);
 
     // NAMES
@@ -124,13 +122,11 @@ function cleanData(allStudents) {
 
     // BLOOD
 
-    if (bloodRegister.half.includes(student.lastName)) {
+    if (bloodRegister.half.includes(student.lastName))
       student.bloodStatus = "Halfblood";
-    } else if (bloodRegister.pure.includes(student.lastName)) {
+    else if (bloodRegister.pure.includes(student.lastName))
       student.bloodStatus = "Pureblood";
-    } else {
-      student.bloodStatus = "Muggleborn";
-    }
+    else student.bloodStatus = "Muggleborn";
 
     cleanStudents.push(student);
   });
@@ -184,6 +180,22 @@ function showStudents(students) {
 // POPUP
 
 function openPopup(student) {
+  document.querySelector("#popup").style.display = "block";
+  document.querySelector("#close").style.display = "block";
+
+  document
+    .querySelector("#close")
+    .addEventListener("click", () => closePopup());
+
+  showPopupInfo(student);
+}
+
+function closePopup() {
+  document.querySelector("#popup").style.display = "none";
+  document.querySelector("#close").style.display = "none";
+}
+
+function showPopupInfo(student) {
   let isExpelled = expelledStudents.includes(student);
 
   document.querySelector(".popup_content").innerHTML = `
@@ -220,13 +232,6 @@ function openPopup(student) {
     "#popup"
   ).style.backgroundImage = `url(images/${student.house}_wallpaper.jpg)`;
 
-  document.querySelector("#popup").style.width = "50%";
-  document.querySelector("#close").style.display = "block";
-
-  document
-    .querySelector("#close")
-    .addEventListener("click", () => closePopup());
-
   if (!isExpelled)
     document
       .querySelector(".expel")
@@ -241,11 +246,6 @@ function openPopup(student) {
     if (!student.inqSquad) addToInq(student);
     else removeFromInq(student);
   });
-}
-
-function closePopup() {
-  document.querySelector("#popup").style.width = "0%";
-  document.querySelector("#close").style.display = "none";
 }
 
 // SORTING (HAT)
@@ -284,12 +284,12 @@ function dropDown() {
 function changeFilter() {
   house = this.getAttribute("value");
 
+  showStudents(currentStudents);
+
   document.querySelector(".house_content").classList.toggle("show");
   document.querySelector(
     "#chosen_house"
   ).innerHTML = `<img src="images/${house}_crest.png"><i class="fa fa-angle-down">`;
-
-  showStudents(currentStudents);
 }
 
 function filterByHouse(students) {
@@ -334,9 +334,8 @@ function showHouseAmount(cleanStudents) {
 // EXPELLING
 
 function expelStudent(student) {
-  if (student.lastName === "Krogsbøll") {
-    alert("NOT ALLOWED");
-  } else {
+  if (student.lastName === "Krogsbøll") alert("NOT ALLOWED");
+  else {
     expelledStudents.push(student);
 
     filterExpelledStudents(student);
@@ -356,11 +355,9 @@ function filterExpelledStudents(expelledStudent) {
 
 function changeExpelled() {
   status = this.value;
-  if (status === "expelled") {
-    currentStudents = expelledStudents;
-  } else {
-    currentStudents = cleanStudents;
-  }
+  if (status === "expelled") currentStudents = expelledStudents;
+  else currentStudents = cleanStudents;
+
   showStudents(currentStudents);
 }
 
@@ -369,21 +366,17 @@ function changeExpelled() {
 function makePrefect(newPrefect) {
   let prefects = currentStudents.filter(student => {
     if (student.house === newPrefect.house) {
-      if (student.prefect === true) {
-        return true;
-      }
+      if (student.prefect === true) return true;
     }
 
     return false;
   });
 
-  if (prefects.length < 2) {
-    newPrefect.prefect = true;
-  } else {
+  if (prefects.length < 2) newPrefect.prefect = true;
+  else
     alert(
       "OOPS! There are already two prefects in this house, you must remove one before adding a new one!"
     );
-  }
 
   openPopup(newPrefect);
 }
@@ -436,9 +429,9 @@ function insertMe() {
 }
 
 function newBlood(student) {
-  if (student.bloodStatus === "Pureblood") {
+  if (student.bloodStatus === "Pureblood")
     student.bloodStatus = randomizeBlood();
-  } else student.bloodStatus = "Pureblood";
+  else student.bloodStatus = "Pureblood";
 }
 
 function randomizeBlood() {
