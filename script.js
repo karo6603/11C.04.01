@@ -1,19 +1,30 @@
 "use strict";
-
+let bloodRegister = {};
 let cleanStudents = [];
 let currentStudents = [];
+let expelledStudents = [];
 let sort = "none";
+let house = "All";
 
 document.addEventListener("DOMContentLoaded", start);
 
 //   GET JSON
 function start() {
   async function getJson() {
+    await getBlood();
     let jsonData = await fetch(
       "http://petlatkea.dk/2019/hogwartsdata/students.json"
     );
 
     cleanData(await jsonData.json());
+  }
+
+  async function getBlood() {
+    let bloodData = await fetch(
+      "http://petlatkea.dk/2019/hogwartsdata/families.json"
+    );
+
+    bloodRegister = await bloodData.json();
   }
   getJson();
 
@@ -21,6 +32,9 @@ function start() {
 
   document.querySelectorAll("#sort-by").forEach(option => {
     option.addEventListener("change", changeSort);
+  });
+  document.querySelectorAll("#filter_expelled").forEach(option => {
+    option.addEventListener("change", changeExpelled);
   });
 }
 
@@ -112,16 +126,22 @@ function cleanData(allStudents) {
         .toLowerCase()}.png`;
     }
 
+    // BLOOD
+
+    if (bloodRegister.half.includes(student.lastName)) {
+      student.bloodStatus = "Halfblood";
+    } else if (bloodRegister.pure.includes(student.lastName)) {
+      student.bloodStatus = "Pureblood";
+    } else {
+      student.bloodStatus = "Muggleborn";
+    }
+
     cleanStudents.push(student);
   });
 
   currentStudents = cleanStudents.slice(0);
 
-  showStudents();
-
-  showAmount();
-
-  showHouseAmount(cleanStudents);
+  showStudents(currentStudents);
 }
 
 const studentData = {
@@ -131,20 +151,21 @@ const studentData = {
   nickName: "",
   house: "",
   pictureName: "",
-  expelled: "Not expelled",
-  prefect: "Not a prefect",
-  bloodStatus: "idk",
-  inqSquad: "no"
+  prefect: false,
+  bloodStatus: "",
+  inqSquad: false
 };
 
 //   SHOW STUDENT LIST
-function showStudents() {
-  sortBy();
+function showStudents(students) {
+  students = filterByHouse(students);
+
+  sortBy(students);
   let dest = document.querySelector("#list");
 
   dest.innerHTML = "";
 
-  currentStudents.forEach(student => {
+  students.forEach(student => {
     let template = `
         <div class="student" style="background-image: url(images/${student.house}_wallpaper.jpg)">
         <img src=${student.pictureName}>
@@ -153,26 +174,48 @@ function showStudents() {
         </div>`;
 
     dest.insertAdjacentHTML("beforeend", template);
-    dest.lastElementChild.addEventListener("click", () => openStudent(student));
+    dest.lastElementChild.addEventListener("click", () => openPopup(student));
   });
+
+  showAmount();
+
+  showHouseAmount(cleanStudents);
 }
 
 // POPUP
 
-function openStudent(student) {
+function openPopup(student) {
+  let isExpelled = expelledStudents.includes(student);
+
   document.querySelector(".popup_content").innerHTML = `
                             <div class="student">
-                            <div id="crest"><img src="images/${student.house}_crest.png"></div>
+                            <div id="crest"><img src="images/${
+                              student.house
+                            }_crest.png"></div>
                             <img src=${student.pictureName}>
                             <div id="top">
-                <h2>${student.firstName} ${student.middleName} ${student.lastName}</h2>
+                <h2>${student.firstName} ${student.middleName} ${
+    student.lastName
+  }</h2>
                 <p>${student.house}</p>
-                <p>${student.prefect}</p>
+                <p>Prefect: ${student.prefect ? "YES" : "NO"}</p>
                 <p>Blood-status: ${student.bloodStatus}</p>
-                <p>Inquisitorial squad: ${student.inqSquad}</p></div>
-                <button class="prefect">Make prefect</button>
-                <button class="inq">Add to Inquisitorial squad</button>
-                <button class="expel">Expel student</button></div>      
+                <p>Inquisitorial squad: ${
+                  student.inqSquad ? "YES" : "NO"
+                }</p></div>
+                <button class="prefect">${
+                  student.prefect ? "Remove as prefect" : "Make prefect"
+                }</button>
+                <button class="inq">${
+                  isEligibleSquad(student)
+                    ? student.inqSquad
+                      ? "Remove from Inquisitorial sqaud"
+                      : "Add to Inquisitorial squad"
+                    : "Inquisitorial squad not available"
+                }</button>
+                <button class="expel">${
+                  isExpelled ? "EXPELLED" : "Expel student"
+                }</button></div>      
                                 </div>`;
   document.querySelector(
     "#popup"
@@ -181,30 +224,50 @@ function openStudent(student) {
   document.querySelector("#popup").style.width = "50%";
   document.querySelector("#close").style.display = "block";
 
-  document.querySelector("#close").addEventListener("click", () => {
-    document.querySelector("#popup").style.width = "0%";
-    document.querySelector("#close").style.display = "none";
+  document
+    .querySelector("#close")
+    .addEventListener("click", () => closePopup());
+
+  if (!isExpelled)
+    document
+      .querySelector(".expel")
+      .addEventListener("click", () => expelStudent(student));
+
+  document.querySelector(".prefect").addEventListener("click", () => {
+    if (!student.prefect) makePrefect(student);
+    else removePrefect(student);
   });
+
+  document.querySelector(".inq").addEventListener("click", () => {
+    if (!student.inqSquad) addToInq(student);
+    else removeFromInq(student);
+  });
+}
+
+function closePopup() {
+  document.querySelector("#popup").style.width = "0%";
+  document.querySelector("#close").style.display = "none";
 }
 
 // SORTING (HAT)
 
 function changeSort() {
   sort = this.value;
-  showStudents();
+
+  showStudents(currentStudents);
 }
 
-function sortBy() {
+function sortBy(students) {
   if (sort == "Firstname")
-    currentStudents.sort((a, b) => {
+    students.sort((a, b) => {
       return a.firstName.localeCompare(b.firstName);
     });
   else if (sort == "Lastname")
-    currentStudents.sort((a, b) => {
+    students.sort((a, b) => {
       return a.lastName.localeCompare(b.lastName);
     });
   else if (sort == "House")
-    currentStudents.sort((a, b) => {
+    students.sort((a, b) => {
       return a.house.localeCompare(b.house);
     });
 }
@@ -215,30 +278,27 @@ function dropDown() {
   document.querySelector(".house_content").classList.toggle("show");
 
   document.querySelectorAll(".house").forEach(house => {
-    house.addEventListener("click", filterByHouse);
+    house.addEventListener("click", changeFilter);
   });
 }
 
-function filterByHouse() {
-  let house = this.getAttribute("value");
+function changeFilter() {
+  house = this.getAttribute("value");
 
   document.querySelector(".house_content").classList.toggle("show");
-
   document.querySelector(
     "#chosen_house"
   ).innerHTML = `<img src="images/${house}_crest.png"><i class="fa fa-angle-down">`;
 
-  studentsInHouse(house);
+  showStudents(currentStudents);
 }
 
-function studentsInHouse(house) {
-  currentStudents = cleanStudents.filter(s => {
-    if (s.house === house) return true;
+function filterByHouse(students) {
+  return students.filter(student => {
+    if (student.house === house) return true;
     else if (house === "All") return true;
     else return false;
   });
-
-  showStudents();
 }
 
 // SHOW DETAILS
@@ -247,6 +307,10 @@ function showAmount() {
   document.querySelector(
     "#total"
   ).innerHTML = `Total number of students: ${cleanStudents.length}`;
+
+  document.querySelector(
+    "#total_expelled"
+  ).innerHTML = `Total number of expelled students: ${expelledStudents.length}`;
 }
 
 function showHouseAmount(cleanStudents) {
@@ -266,4 +330,85 @@ function showHouseAmount(cleanStudents) {
   ).innerHTML = `${hufflepuff.length}`;
   document.querySelector("#total_slytherin").innerHTML = `${slytherin.length}`;
   document.querySelector("#total_ravenclaw").innerHTML = `${ravenclaw.length}`;
+}
+
+// EXPELLING
+
+function expelStudent(student) {
+  expelledStudents.push(student);
+
+  filterExpelledStudents(student);
+}
+
+function filterExpelledStudents(expelledStudent) {
+  cleanStudents = cleanStudents.filter(student => student !== expelledStudent);
+
+  currentStudents = currentStudents.filter(
+    student => student !== expelledStudent
+  );
+
+  showStudents(currentStudents);
+  closePopup();
+}
+
+function changeExpelled() {
+  status = this.value;
+  if (status === "expelled") {
+    currentStudents = expelledStudents;
+  } else {
+    currentStudents = cleanStudents;
+  }
+  showStudents(currentStudents);
+}
+
+// PREFECT
+
+function makePrefect(newPrefect) {
+  let prefects = currentStudents.filter(student => {
+    if (student.house === newPrefect.house) {
+      if (student.prefect === true) {
+        return true;
+      }
+    }
+
+    return false;
+  });
+
+  if (prefects.length < 2) {
+    newPrefect.prefect = true;
+  } else {
+    alert(
+      "OOPS! There are already two prefects in this house, you must remove one before adding a new one!"
+    );
+  }
+
+  openPopup(newPrefect);
+}
+
+function removePrefect(student) {
+  student.prefect = false;
+
+  openPopup(student);
+}
+
+// INQ SQUAD
+
+function addToInq(newMember) {
+  if (isEligibleSquad(newMember)) {
+    newMember.inqSquad = true;
+  }
+
+  openPopup(newMember);
+}
+
+function isEligibleSquad(newMember) {
+  return (
+    newMember.bloodStatus === "Pureblood" || newMember.house === "Slytherin"
+  );
+}
+
+function removeFromInq(newMember) {
+  newMember.inqSquad = false;
+
+  openPopup(newMember);
 }
